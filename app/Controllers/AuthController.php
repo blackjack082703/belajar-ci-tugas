@@ -40,6 +40,15 @@ class AuthController extends BaseController
                         'isLoggedIn' => TRUE
                     ]);
 
+                    // Tambahan pencarian diskon
+            $diskonModel = new \App\Models\DiskonModel();
+            $diskonHariIni = $diskonModel->getTodayDiskon();
+
+            if ($diskonHariIni) {
+                     session()->set('diskon', $diskonHariIni['nominal']);
+        }
+
+
                     return redirect()->to(base_url('/'));
                 } else {
                     session()->setFlashdata('failed', 'Kombinasi Username & Password Salah');

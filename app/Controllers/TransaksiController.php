@@ -32,17 +32,23 @@ class TransaksiController extends BaseController
     }
 
     public function cart_add()
-    {
-        $this->cart->insert(array(
-            'id'        => $this->request->getPost('id'),
-            'qty'       => 1,
-            'price'     => $this->request->getPost('harga'),
-            'name'      => $this->request->getPost('nama'),
-            'options'   => array('foto' => $this->request->getPost('foto'))
-        ));
-        session()->setflashdata('success', 'Produk berhasil ditambahkan ke keranjang. (<a href="' . base_url() . 'keranjang">Lihat</a>)');
-        return redirect()->to(base_url('/'));
-    }
+{
+    $harga = $this->request->getPost('harga');
+    $diskon = session('diskon') ?? 0;
+    $hargaSetelahDiskon = max($harga - $diskon, 0); // hindari minus
+
+    $this->cart->insert([
+        'id'      => $this->request->getPost('id'),
+        'qty'     => 1,
+        'price'   => $hargaSetelahDiskon,
+        'name'    => $this->request->getPost('nama'),
+        'options' => ['foto' => $this->request->getPost('foto')]
+    ]);
+
+    session()->setFlashdata('success', 'Produk berhasil ditambahkan ke keranjang. (<a href="' . base_url() . 'keranjang">Lihat</a>)');
+    return redirect()->to(base_url('/'));
+}
+
 
     public function cart_clear()
     {
@@ -140,38 +146,36 @@ public function buy()
 {
     if ($this->request->getPost()) { 
         $dataForm = [
-            'username' => $this->request->getPost('username'),
+            'username'    => $this->request->getPost('username'),
             'total_harga' => $this->request->getPost('total_harga'),
-            'alamat' => $this->request->getPost('alamat'),
-            'ongkir' => $this->request->getPost('ongkir'),
-            'status' => 0,
-            'created_at' => date("Y-m-d H:i:s"),
-            'updated_at' => date("Y-m-d H:i:s")
+            'alamat'      => $this->request->getPost('alamat'),
+            'ongkir'      => $this->request->getPost('ongkir'),
+            'status'      => 0,
+            'created_at'  => date("Y-m-d H:i:s"),
+            'updated_at'  => date("Y-m-d H:i:s")
         ];
 
         $this->transaction->insert($dataForm);
+        $transaksi_id = $this->transaction->getInsertID(); // ✅ gunakan nama yang konsisten
 
-        $last_insert_id = $this->transaction->getInsertID();
-
-        foreach ($this->cart->contents() as $value) {
-            $dataFormDetail = [
-                'transaction_id' => $last_insert_id,
-                'product_id' => $value['id'],
-                'jumlah' => $value['qty'],
-                'diskon' => 0,
-                'subtotal_harga' => $value['qty'] * $value['price'],
-                'created_at' => date("Y-m-d H:i:s"),
-                'updated_at' => date("Y-m-d H:i:s")
-            ];
-
-            $this->transaction_detail->insert($dataFormDetail);
+        foreach ($this->cart->contents() as $item) {
+            $this->transaction_detail->insert([
+                'transaction_id'   => $transaksi_id,
+                'product_id'       => $item['id'],
+                'jumlah'           => $item['qty'],
+                'diskon'           => session('diskon') ?? 0,
+                'subtotal_harga'   => $item['subtotal'],
+                'created_at'       => date('Y-m-d H:i:s'),
+                'updated_at'       => date('Y-m-d H:i:s')
+            ]);
         }
 
         $this->cart->destroy();
- 
+        session()->setFlashdata('success', 'Transaksi berhasil disimpan!');
         return redirect()->to(base_url());
     }
 }
+
 
 }
 

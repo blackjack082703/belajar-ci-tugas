@@ -115,6 +115,29 @@ public function download()
     // output the generated pdf
     $dompdf->stream($filename);
 }
+public function addToCart($id)
+{
+    $produk = $this->product->find($id);
+
+    if (!$produk) {
+        return redirect()->back()->with('error', 'Produk tidak ditemukan.');
+    }
+
+    $diskon = session('diskon') ?? 0;
+
+$hargaDiskon = $produk['harga'] - $diskon;
+$hargaFinal = max($hargaDiskon, 0); // jangan sampai negatif
+
+$this->cart->insert([
+    'id'    => $produk['id'],
+    'name'  => $produk['nama'],
+    'price' => $hargaFinal,
+    'qty'   => 1
+]);
+
+
+    return redirect()->to('/keranjang')->with('success', 'Produk berhasil ditambahkan ke keranjang!');
+}
 
 
 }

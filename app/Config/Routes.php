@@ -51,3 +51,13 @@ $routes->get('keranjang', 'TransaksiController::index', ['filter' => 'auth']);
 
 $routes->resource('api', ['controller' => 'apiController']);
 
+$routes->group('diskon', ['filter' => 'auth'], function($routes) {
+    $routes->get('/', 'DiskonController::index');
+    $routes->get('create', 'DiskonController::create');
+    $routes->post('store', 'DiskonController::store');
+    $routes->get('edit/(:num)', 'DiskonController::edit/$1');
+    $routes->post('update/(:num)', 'DiskonController::update/$1');
+    $routes->get('delete/(:num)', 'DiskonController::delete/$1');
+});
+
+$routes->get('produk/tambah-ke-keranjang/(:num)', 'ProdukController::addToCart/$1');

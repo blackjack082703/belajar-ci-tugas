@@ -58,6 +58,8 @@ if (session()->getFlashData('failed')) {
 <a href="<?= base_url('produk/delete/' . $produk['id']) ?>" class="btn btn-danger" onclick="return confirm('Yakin hapus data ini ?')">
     Hapus
 </a>
+
+
                 </td>
             </tr>
             <!-- Edit Modal Begin -->
