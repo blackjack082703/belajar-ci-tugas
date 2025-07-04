@@ -47,7 +47,7 @@ Sebuah aplikasi toko online sederhana berbasis **CodeIgniter 4** dengan integras
 
 ### 1. Clone Project
 ```bash
-git clone https://github.com/your-username/toko-ci4.git
+git clone https://github.com/blackjack082703/belajar-ci-tugasgit 
 ```
 
 ### 2. Install Dependency
@@ -117,7 +117,7 @@ public/
 - Nama: Akbar Dwi Saputro  
 - NIM: A11.2023.15371  
 - Matkul: Pemrograman Web Lanjut  
-- Dosen: [nama dosen Anda]
+- Dosen: [Aprilyani Nur Safitri, M.Kom]
 
 ---
 
