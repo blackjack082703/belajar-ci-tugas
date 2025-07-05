@@ -52,6 +52,8 @@ public function profile()
 
     $data['product'] = $product;
 
+
+    
     return view('v_profile', $data);
 }
 

@@ -28,24 +28,31 @@ class DiskonController extends BaseController
         return view('v_diskon_create');
     }
 
-    public function store()
-    {
-        $tanggal = $this->request->getPost('tanggal');
+   public function store()
+{
+    $tanggal = $this->request->getPost('tanggal');
 
-        $existing = $this->diskonModel->where('tanggal', $tanggal)->first();
-        if ($existing) {
-            return redirect()->back()->withInput()->with('error', 'Diskon untuk tanggal ini sudah ada.');
-        }
-
-        $this->diskonModel->save([
-            'tanggal'    => $tanggal,
-            'nominal'    => $this->request->getPost('nominal'),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        ]);
-
-        return redirect()->to('/diskon')->with('success', 'Diskon berhasil ditambahkan.');
+    // Cek apakah diskon untuk tanggal ini sudah ada
+    $existing = $this->diskonModel->where('tanggal', $tanggal)->first();
+    if ($existing) {
+        return redirect()->back()->withInput()->with('error', 'Diskon untuk tanggal ini sudah ada.');
     }
+
+    // Simpan diskon baru
+    $this->diskonModel->save([
+        'tanggal'    => $tanggal,
+        'nominal'    => $this->request->getPost('nominal'),
+        'created_at' => date('Y-m-d H:i:s'),
+        'updated_at' => date('Y-m-d H:i:s'),
+    ]);
+
+    // Jika diskon hari ini, set langsung ke session
+    if ($tanggal === date('Y-m-d')) {
+        session()->set('diskon', $this->request->getPost('nominal'));
+    }
+
+    return redirect()->to('/diskon')->with('success', 'Diskon berhasil ditambahkan.');
+}
 
     public function edit($id)
     {
@@ -53,15 +60,21 @@ class DiskonController extends BaseController
         return view('v_diskon_edit', $data);
     }
 
-    public function update($id)
-    {
-        $this->diskonModel->update($id, [
-            'nominal'    => $this->request->getPost('nominal'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        ]);
+   public function update($id)
+{
+    $this->diskonModel->update($id, [
+        'nominal'    => $this->request->getPost('nominal'),
+        'updated_at' => date('Y-m-d H:i:s'),
+    ]);
 
-        return redirect()->to('/diskon')->with('success', 'Diskon berhasil diupdate.');
+    // Tambahan agar session diskon hari ini ikut berubah
+    $diskon = $this->diskonModel->find($id);
+    if ($diskon && $diskon['tanggal'] === date('Y-m-d')) {
+        session()->set('diskon', $diskon['nominal']);
     }
+
+    return redirect()->to('/diskon')->with('success', 'Diskon berhasil diupdate.');
+}
 
     public function delete($id)
     {

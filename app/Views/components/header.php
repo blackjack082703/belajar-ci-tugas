@@ -1,3 +1,5 @@
+  <?php helper('number'); ?>
+
   <!-- ======= Header ======= -->
   <header id="header" class="header fixed-top d-flex align-items-center">
 
@@ -224,10 +226,17 @@
 
       </ul>
     </nav><!-- End Icons Navigation -->
-<?php if (session()->has('diskon')): ?>
-  <div class="alert alert-info text-center rounded-0 mb-0" style="border-radius: 0;">
-    🎉 Diskon Hari Ini: <strong>Rp <?= number_format(session('diskon'), 0, ',', '.') ?></strong>
+<?php if (session('diskon')): ?>
+  <div class="text-center my-4">
+    <div class="alert alert-success d-inline-block shadow">
+      🎉 <strong>Diskon Hari Ini:</strong> <?= number_to_currency(session('diskon'), 'IDR') ?>
+    </div>
   </div>
 <?php endif; ?>
+
+
+
+
+
 
   </header><!-- End Header -->
